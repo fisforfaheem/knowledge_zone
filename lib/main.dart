@@ -46,6 +46,55 @@ class HomeScreen extends StatelessWidget {
                       fontSize: 40,
                       color: Colors.white,
                       fontWeight: FontWeight.bold),
+                )
+                    .animate()
+                    .fadeIn(duration: const Duration(milliseconds: 800))
+                    .scale(),
+                const SizedBox(height: 40),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const QuizScreen()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30)),
+                  ),
+                  child:
+                      const Text('Start Quiz', style: TextStyle(fontSize: 20)),
+                )
+                    .animate()
+                    .slideY(
+                        begin: 1,
+                        end: 0,
+                        duration: const Duration(milliseconds: 600))
+                    .fadeIn(),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const AboutPage()),
+                    );
+                  },
+                  child: const Text('About'),
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const PrivacyPolicyPage()),
+                    );
+                  },
+                  child: const Text('Privacy Policy'),
                 ),
                 const SizedBox(height: 40),
                 ElevatedButton(
@@ -235,6 +284,98 @@ class ResultScreen extends StatelessWidget {
                 )
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class PrivacyPolicyPage extends StatelessWidget {
+  const PrivacyPolicyPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Privacy Policy')),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.deepPurple.shade800, Colors.blue.shade600],
+          ),
+        ),
+        child: const Padding(
+          padding: EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Privacy Policy',
+                  style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'This app does not collect or store any personal information. All quiz results are stored locally on your device and are not shared with any third parties.',
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Last updated: June 2023',
+                  style: TextStyle(fontSize: 16, color: Colors.white70),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class AboutPage extends StatelessWidget {
+  const AboutPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('About')),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.deepPurple.shade800, Colors.blue.shade600],
+          ),
+        ),
+        child: const Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'World Knowledge Quiz',
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'This app is designed to test and improve your general knowledge about the world. Have fun learning!',
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Version: 1.0.0',
+                style: TextStyle(fontSize: 16, color: Colors.white70),
+              ),
+            ],
           ),
         ),
       ),
