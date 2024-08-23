@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 void main() {
   runApp(const MainApp());
@@ -51,51 +52,6 @@ class HomeScreen extends StatelessWidget {
                     .fadeIn(duration: const Duration(milliseconds: 800))
                     .scale(),
                 const SizedBox(height: 40),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const QuizScreen()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 40, vertical: 15),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30)),
-                  ),
-                  child:
-                      const Text('Start Quiz', style: TextStyle(fontSize: 20)),
-                )
-                    .animate()
-                    .slideY(
-                        begin: 1,
-                        end: 0,
-                        duration: const Duration(milliseconds: 600))
-                    .fadeIn(),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const AboutPage()),
-                    );
-                  },
-                  child: const Text('About'),
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const PrivacyPolicyPage()),
-                    );
-                  },
-                  child: const Text('Privacy Policy'),
-                ),
                 const SizedBox(height: 40),
                 ElevatedButton(
                   onPressed: () {
@@ -113,11 +69,75 @@ class HomeScreen extends StatelessWidget {
                   ),
                   child:
                       const Text('Start Quiz', style: TextStyle(fontSize: 20)),
-                )
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () => _showSettingsDialog(context),
+                  child: const Text('Settings'),
+                ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showSettingsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Settings'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text('Privacy Policy'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _openWebView(
+                      context, 'Privacy Policy', 'https://google.com/');
+                },
+              ),
+              ListTile(
+                title: const Text('About'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _showAboutDialog(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAboutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('About'),
+          content: const Text(
+              'This app is designed to test and improve your general knowledge about the world. Have fun learning!'
+              '\n\nVersion: 1.0.0'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _openWebView(BuildContext context, String title, String url) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => WebViewPage(title: title, url: url),
       ),
     );
   }
@@ -127,6 +147,7 @@ class QuizScreen extends StatefulWidget {
   const QuizScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _QuizScreenState createState() => _QuizScreenState();
 }
 
@@ -291,92 +312,23 @@ class ResultScreen extends StatelessWidget {
   }
 }
 
-class PrivacyPolicyPage extends StatelessWidget {
-  const PrivacyPolicyPage({super.key});
+class WebViewPage extends StatelessWidget {
+  final String title;
+  final String url;
+
+  const WebViewPage({super.key, required this.title, required this.url});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Privacy Policy')),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Colors.deepPurple.shade800, Colors.blue.shade600],
-          ),
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text(title),
         ),
-        child: const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Privacy Policy',
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'This app does not collect or store any personal information. All quiz results are stored locally on your device and are not shared with any third parties.',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Last updated: June 2023',
-                  style: TextStyle(fontSize: 16, color: Colors.white70),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class AboutPage extends StatelessWidget {
-  const AboutPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('About')),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Colors.deepPurple.shade800, Colors.blue.shade600],
-          ),
-        ),
-        child: const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'World Knowledge Quiz',
-                style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
-              ),
-              SizedBox(height: 16),
-              Text(
-                'This app is designed to test and improve your general knowledge about the world. Have fun learning!',
-                style: TextStyle(fontSize: 16, color: Colors.white),
-              ),
-              SizedBox(height: 16),
-              Text(
-                'Version: 1.0.0',
-                style: TextStyle(fontSize: 16, color: Colors.white70),
-              ),
-            ],
-          ),
+        body: WebViewWidget(
+          controller: WebViewController()
+            ..loadRequest(Uri.parse(url))
+            ..setJavaScriptMode(JavaScriptMode.unrestricted),
         ),
       ),
     );
