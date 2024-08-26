@@ -7,6 +7,7 @@ environment:
   sdk: ^3.5.0-323.2.beta
 
 dependencies:
+  confetti: ^0.7.0
   flutter:
     sdk: flutter
   flutter_animate: ^4.5.0
