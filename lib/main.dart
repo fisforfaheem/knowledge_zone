@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:general_knowledge_app/faq_page.dart';
+import 'package:general_knowledge_app/questions.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -124,6 +125,13 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
+void _startQuiz(BuildContext context, String quizType) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => QuizScreen(quizType: quizType)),
+  );
+}
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -131,46 +139,6 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      // appBar: AppBar(
-      //   automaticallyImplyLeading: false,
-      //   centerTitle: true,
-      //   title: Column(
-      //     children: [
-      //       const Text(
-      //         'World Knowledge',
-      //         style: TextStyle(fontSize: 24, color: Colors.white),
-      //       )
-      //           .animate()
-      //           .fadeIn(duration: const Duration(milliseconds: 800))
-      //           .scale(),
-      //       const SizedBox(height: 4),
-      //       const Text(
-      //         'Expand your horizons',
-      //         style: TextStyle(fontSize: 14, color: Colors.white70),
-      //       ),
-      //     ],
-      //   ),
-      //   flexibleSpace: Container(
-      //     decoration: BoxDecoration(
-      //       gradient: LinearGradient(
-      //         begin: Alignment.topLeft,
-      //         end: Alignment.bottomRight,
-      //         colors: [Colors.deepOrange.shade800, Colors.blue.shade600],
-      //       ),
-      //     ),
-      //   ),
-      //   actions: [
-      //     IconButton(
-      //       icon: const Icon(Icons.settings, color: Colors.white),
-      //       onPressed: () {
-      //         Navigator.push(
-      //           context,
-      //           MaterialPageRoute(builder: (context) => const MorePage()),
-      //         );
-      //       },
-      //     ),
-      //   ],
-      // ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -180,99 +148,37 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 40),
-                  const Text(
-                    'World Knowledge',
-                    style: TextStyle(
-                      fontSize: 40,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  )
-                      .animate()
-                      .fadeIn(duration: const Duration(milliseconds: 800))
-                      .scale(),
-                  const SizedBox(height: 40),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const QuizScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 40, vertical: 15),
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30)),
-                      shadowColor: Colors.deepOrange,
-                      elevation: 10,
-                    ),
-                    icon:
-                        const Icon(Icons.play_arrow, color: Colors.deepOrange),
-                    label: const Text(
-                      'Start Quiz',
-                      style: TextStyle(fontSize: 20, color: Colors.deepOrange),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const LeaderboardScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 40, vertical: 15),
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30)),
-                      shadowColor: Colors.blue,
-                      elevation: 10,
-                    ),
-                    icon: const Icon(Icons.leaderboard, color: Colors.blue),
-                    label: const Text(
-                      'Leaderboard',
-                      style: TextStyle(fontSize: 20, color: Colors.blue),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ProfileScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 40, vertical: 15),
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30)),
-                      shadowColor: Colors.green,
-                      elevation: 10,
-                    ),
-                    icon: const Icon(Icons.person, color: Colors.green),
-                    label: const Text(
-                      'Profile',
-                      style: TextStyle(fontSize: 20, color: Colors.green),
-                    ),
-                  ),
-                ],
+          child: Column(
+            children: [
+              const SizedBox(height: 40),
+              const Text(
+                'World Knowledge',
+                style: TextStyle(
+                  fontSize: 40,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              )
+                  .animate()
+                  .fadeIn(duration: const Duration(milliseconds: 800))
+                  .scale(),
+              Expanded(
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  padding: const EdgeInsets.all(16),
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  children: [
+                    _buildBentoButton(
+                        context, 'General Knowledge', Icons.lightbulb),
+                    _buildBentoButton(context, 'Science', Icons.science),
+                    _buildBentoButton(context, 'History', Icons.history),
+                    _buildBentoButton(
+                        context, 'Leaderboard', Icons.leaderboard),
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),
@@ -299,13 +205,11 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
         onTap: (index) {
-          // Handle navigation based on the selected index
           switch (index) {
             case 0:
               // Navigate to Home
               break;
             case 1:
-              // Navigate to Leaderboard
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -313,14 +217,12 @@ class HomeScreen extends StatelessWidget {
               );
               break;
             case 2:
-              // Navigate to Profile
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const ProfileScreen()),
               );
               break;
             case 3:
-              // Navigate to More
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const MorePage()),
@@ -331,10 +233,78 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildBentoButton(BuildContext context, String title, IconData icon) {
+    final Map<String, Color> colorMap = {
+      'General Knowledge': Colors.amber,
+      'Science': Colors.green,
+      'History': Colors.purple,
+      'Leaderboard': Colors.blue,
+    };
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: ElevatedButton(
+        onPressed: () {
+          if (title == 'General Knowledge' ||
+              title == 'Science' ||
+              title == 'History') {
+            _startQuiz(context, title);
+          } else if (title == 'Leaderboard') {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const LeaderboardScreen()));
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: colorMap[title]?.withOpacity(0.8) ??
+              Colors.white.withOpacity(0.2),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          padding: const EdgeInsets.all(16),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 56, color: Colors.white),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ).animate().fadeIn(duration: const Duration(milliseconds: 600)).scale();
+  }
+
+  void _startQuiz(BuildContext context, String quizType) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => QuizScreen(quizType: quizType)),
+    );
+  }
 }
 
 class QuizScreen extends StatefulWidget {
-  const QuizScreen({super.key});
+  final String quizType;
+
+  const QuizScreen({super.key, required this.quizType});
 
   @override
   _QuizScreenState createState() => _QuizScreenState();
@@ -351,7 +321,7 @@ class _QuizScreenState extends State<QuizScreen>
   @override
   void initState() {
     super.initState();
-    _questions = List.from(_allQuestions)..shuffle();
+    _questions = List.from(quizzes[widget.quizType]!)..shuffle();
     _questions = _questions.take(10).toList();
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
@@ -820,268 +790,6 @@ class WebViewPage extends StatelessWidget {
   }
 }
 
-final List<Map<String, dynamic>> _allQuestions = [
-  {
-    'question': 'What is the capital of France?',
-    'answers': ['London', 'Berlin', 'Paris', 'Madrid'],
-    'correctAnswer': 2,
-  },
-  {
-    'question': 'Which planet is known as the Red Planet?',
-    'answers': ['Venus', 'Mars', 'Jupiter', 'Saturn'],
-    'correctAnswer': 1,
-  },
-  {
-    'question': 'Who painted the Mona Lisa?',
-    'answers': ['Van Gogh', 'Picasso', 'Da Vinci', 'Michelangelo'],
-    'correctAnswer': 2,
-  },
-  // New questions
-  {
-    'question': 'What is the largest ocean on Earth?',
-    'answers': ['Atlantic', 'Indian', 'Arctic', 'Pacific'],
-    'correctAnswer': 3,
-  },
-  {
-    'question': 'Which country is home to the kangaroo?',
-    'answers': ['New Zealand', 'South Africa', 'Australia', 'Brazil'],
-    'correctAnswer': 2,
-  },
-  {
-    'question': 'What is the chemical symbol for gold?',
-    'answers': ['Go', 'Gd', 'Au', 'Ag'],
-    'correctAnswer': 2,
-  },
-  {
-    'question': 'Who wrote "Romeo and Juliet"?',
-    'answers': [
-      'Charles Dickens',
-      'William Shakespeare',
-      'Jane Austen',
-      'Mark Twain'
-    ],
-    'correctAnswer': 1,
-  },
-  {
-    'question': 'What is the largest planet in our solar system?',
-    'answers': ['Earth', 'Mars', 'Jupiter', 'Saturn'],
-    'correctAnswer': 2,
-  },
-  {
-    'question': 'Which country is known as the Land of the Rising Sun?',
-    'answers': ['China', 'Thailand', 'South Korea', 'Japan'],
-    'correctAnswer': 3,
-  },
-  {
-    'question': 'What is the hardest natural substance on Earth?',
-    'answers': ['Gold', 'Iron', 'Diamond', 'Platinum'],
-    'correctAnswer': 2,
-  },
-  {
-    'question': 'Who invented the telephone?',
-    'answers': [
-      'Thomas Edison',
-      'Alexander Graham Bell',
-      'Nikola Tesla',
-      'Guglielmo Marconi'
-    ],
-    'correctAnswer': 1,
-  },
-  {
-    'question': 'What is the largest mammal in the world?',
-    'answers': ['African Elephant', 'Blue Whale', 'Giraffe', 'Hippopotamus'],
-    'correctAnswer': 1,
-  },
-  {
-    'question':
-        'Which planet is known as the "Morning Star" or "Evening Star"?',
-    'answers': ['Mars', 'Jupiter', 'Venus', 'Mercury'],
-    'correctAnswer': 2,
-  },
-  {
-    'question': 'What is the capital of Japan?',
-    'answers': ['Seoul', 'Beijing', 'Tokyo', 'Bangkok'],
-    'correctAnswer': 2,
-  },
-  {
-    'question': 'Who wrote "To Kill a Mockingbird"?',
-    'answers': [
-      'Harper Lee',
-      'J.K. Rowling',
-      'Stephen King',
-      'Ernest Hemingway'
-    ],
-    'correctAnswer': 0,
-  },
-  {
-    'question': 'What is the largest desert in the world?',
-    'answers': ['Gobi', 'Sahara', 'Arabian', 'Antarctic'],
-    'correctAnswer': 3,
-  },
-  {
-    'question': 'Which element has the chemical symbol "O"?',
-    'answers': ['Gold', 'Silver', 'Oxygen', 'Osmium'],
-    'correctAnswer': 2,
-  },
-  {
-    'question': 'Who painted "The Starry Night"?',
-    'answers': [
-      'Pablo Picasso',
-      'Claude Monet',
-      'Vincent van Gogh',
-      'Leonardo da Vinci'
-    ],
-    'correctAnswer': 2,
-  },
-  {
-    'question': 'What is the capital of Brazil?',
-    'answers': ['Rio de Janeiro', 'São Paulo', 'Brasília', 'Salvador'],
-    'correctAnswer': 2,
-  },
-  {
-    'question': 'Which country is home to the Great Barrier Reef?',
-    'answers': ['Indonesia', 'Philippines', 'Australia', 'Thailand'],
-    'correctAnswer': 2,
-  },
-  {
-    'question': 'What is the capital of France?',
-    'answers': ['London', 'Berlin', 'Paris', 'Madrid'],
-    'correctAnswer': 2,
-  },
-  {
-    'question': 'Which planet is known as the Red Planet?',
-    'answers': ['Venus', 'Mars', 'Jupiter', 'Saturn'],
-    'correctAnswer': 1,
-  },
-  {
-    'question': 'Who painted the Mona Lisa?',
-    'answers': ['Van Gogh', 'Picasso', 'Da Vinci', 'Michelangelo'],
-    'correctAnswer': 2,
-  },
-];
-
-class LeaderboardScreen extends StatefulWidget {
-  const LeaderboardScreen({super.key});
-
-  @override
-  _LeaderboardScreenState createState() => _LeaderboardScreenState();
-}
-
-class _LeaderboardScreenState extends State<LeaderboardScreen> {
-  int _selectedIndex = 1;
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-
-    switch (index) {
-      case 0:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
-        break;
-      case 1:
-        // Current screen, do nothing
-        break;
-      case 2:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const ProfileScreen()),
-        );
-        break;
-      case 3:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const MorePage()),
-        );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Leaderboard'),
-        centerTitle: true,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Colors.deepOrange.shade800, Colors.blue.shade600],
-            ),
-          ),
-        ),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Colors.deepOrange.shade800, Colors.blue.shade600],
-          ),
-        ),
-        child: SafeArea(
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16.0),
-            itemCount: 10, // Example item count
-            itemBuilder: (context, index) {
-              return Card(
-                color: Colors.black.withOpacity(0.8),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.deepOrange,
-                    child: Text(
-                      '${index + 1}',
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  title: Text(
-                    'User ${index + 1}',
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  subtitle: Text(
-                    'Score: ${100 - index * 10}',
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.black,
-        selectedItemColor: Colors.deepOrange,
-        unselectedItemColor: Colors.white70,
-        currentIndex: _selectedIndex,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.leaderboard),
-            label: 'Leaderboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-          //more
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'More',
-          ),
-        ],
-        onTap: _onItemTapped,
-      ),
-    );
-  }
-}
-
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -1115,49 +823,160 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(height: 20),
                 const Text(
-                  'All My Stats',
+                  'Stats',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 24,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 40),
-                Card(
-                  color: Colors.black.withOpacity(0.7),
-                  child: const ListTile(
-                    leading: Icon(Icons.quiz, color: Colors.deepOrange),
-                    title: Text(
-                      'Total Quizzes Taken',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    trailing: Text(
-                      '15',
-                      style: TextStyle(color: Colors.white),
-                    ),
+                const SizedBox(height: 10),
+                _buildStatCard('Total Quizzes Taken', '25'),
+                const SizedBox(height: 10),
+                _buildStatCard('Highest Score', '95'),
+                const SizedBox(height: 10),
+                _buildStatCard('Average Score', '78'),
+                const SizedBox(height: 20),
+                const Divider(color: Colors.white54),
+                const SizedBox(height: 20),
+                const Text(
+                  'Recent Quizzes',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 10),
-                Card(
-                  color: Colors.black.withOpacity(0.7),
-                  child: const ListTile(
-                    leading: Icon(Icons.score, color: Colors.deepOrange),
-                    title: Text(
-                      'Highest Score',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    trailing: Text(
-                      '90',
-                      style: TextStyle(color: Colors.white),
-                    ),
+                Expanded(
+                  child: ListView(
+                    children: [
+                      _buildQuizHistoryItem(
+                          'General Knowledge', '8/10', '2023-05-15'),
+                      _buildQuizHistoryItem('Science', '7/10', '2023-05-14'),
+                      _buildQuizHistoryItem('History', '9/10', '2023-05-13'),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 20),
-                const Divider(color: Colors.white54),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatCard(String title, String value) {
+    return Card(
+      color: Colors.black.withOpacity(0.7),
+      child: ListTile(
+        leading: const Icon(Icons.star, color: Colors.deepOrange),
+        title: Text(
+          title,
+          style: const TextStyle(color: Colors.white),
+        ),
+        trailing: Text(
+          value,
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuizHistoryItem(String quizType, String score, String date) {
+    return Card(
+      color: Colors.black.withOpacity(0.7),
+      child: ListTile(
+        leading: const Icon(Icons.quiz, color: Colors.deepOrange),
+        title: Text(
+          quizType,
+          style: const TextStyle(color: Colors.white),
+        ),
+        subtitle: Text(
+          'Date: $date',
+          style: const TextStyle(color: Colors.white70),
+        ),
+        trailing: Text(
+          score,
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+}
+
+class LeaderboardScreen extends StatelessWidget {
+  const LeaderboardScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Leaderboard'),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Colors.deepOrange.shade800, Colors.blue.shade600],
+            ),
+          ),
+        ),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.deepOrange.shade800, Colors.blue.shade600],
+          ),
+        ),
+        child: SafeArea(
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16.0),
+            itemCount: 10,
+            itemBuilder: (context, index) {
+              return Card(
+                color: Colors.black.withOpacity(0.8),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.deepOrange,
+                    child: Text(
+                      '${index + 1}',
+                      style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  title: Text(
+                    'User ${index + 1}',
+                    style: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    'Total Score: ${1000 - index * 50}',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                  trailing: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'Quizzes: ${20 - index}',
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                      Text(
+                        'Avg: ${95 - index * 2}%',
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ),
