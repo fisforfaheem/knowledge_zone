@@ -2,7 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:general_knowledge_app/faq_page.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/services.dart';
@@ -26,14 +28,14 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
-        primaryColor: Colors.deepPurple,
+        primaryColor: Colors.deepOrange,
         scaffoldBackgroundColor: Colors.black,
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.deepPurple,
+          backgroundColor: Colors.deepOrange,
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.deepPurple,
+            backgroundColor: Colors.deepOrange,
             foregroundColor: Colors.white,
           ),
         ),
@@ -91,7 +93,7 @@ class _SplashScreenState extends State<SplashScreen>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Colors.deepPurple.shade800, Colors.blue.shade600],
+            colors: [Colors.deepOrange.shade800, Colors.blue.shade600],
           ),
         ),
         child: Center(
@@ -129,52 +131,52 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        centerTitle: true,
-        title: Column(
-          children: [
-            const Text(
-              'World Knowledge',
-              style: TextStyle(fontSize: 24, color: Colors.white),
-            )
-                .animate()
-                .fadeIn(duration: const Duration(milliseconds: 800))
-                .scale(),
-            const SizedBox(height: 4),
-            const Text(
-              'Expand your horizons',
-              style: TextStyle(fontSize: 14, color: Colors.white70),
-            ),
-          ],
-        ),
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Colors.deepPurple.shade800, Colors.blue.shade600],
-            ),
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings, color: Colors.white),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsScreen()),
-              );
-            },
-          ),
-        ],
-      ),
+      // appBar: AppBar(
+      //   automaticallyImplyLeading: false,
+      //   centerTitle: true,
+      //   title: Column(
+      //     children: [
+      //       const Text(
+      //         'World Knowledge',
+      //         style: TextStyle(fontSize: 24, color: Colors.white),
+      //       )
+      //           .animate()
+      //           .fadeIn(duration: const Duration(milliseconds: 800))
+      //           .scale(),
+      //       const SizedBox(height: 4),
+      //       const Text(
+      //         'Expand your horizons',
+      //         style: TextStyle(fontSize: 14, color: Colors.white70),
+      //       ),
+      //     ],
+      //   ),
+      //   flexibleSpace: Container(
+      //     decoration: BoxDecoration(
+      //       gradient: LinearGradient(
+      //         begin: Alignment.topLeft,
+      //         end: Alignment.bottomRight,
+      //         colors: [Colors.deepOrange.shade800, Colors.blue.shade600],
+      //       ),
+      //     ),
+      //   ),
+      //   actions: [
+      //     IconButton(
+      //       icon: const Icon(Icons.settings, color: Colors.white),
+      //       onPressed: () {
+      //         Navigator.push(
+      //           context,
+      //           MaterialPageRoute(builder: (context) => const MorePage()),
+      //         );
+      //       },
+      //     ),
+      //   ],
+      // ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Colors.deepPurple.shade800, Colors.blue.shade600],
+            colors: [Colors.deepOrange.shade800, Colors.blue.shade600],
           ),
         ),
         child: SafeArea(
@@ -210,14 +212,62 @@ class HomeScreen extends StatelessWidget {
                       backgroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30)),
-                      shadowColor: Colors.deepPurple,
+                      shadowColor: Colors.deepOrange,
                       elevation: 10,
                     ),
                     icon:
-                        const Icon(Icons.play_arrow, color: Colors.deepPurple),
+                        const Icon(Icons.play_arrow, color: Colors.deepOrange),
                     label: const Text(
                       'Start Quiz',
-                      style: TextStyle(fontSize: 20, color: Colors.deepPurple),
+                      style: TextStyle(fontSize: 20, color: Colors.deepOrange),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LeaderboardScreen()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 40, vertical: 15),
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30)),
+                      shadowColor: Colors.blue,
+                      elevation: 10,
+                    ),
+                    icon: const Icon(Icons.leaderboard, color: Colors.blue),
+                    label: const Text(
+                      'Leaderboard',
+                      style: TextStyle(fontSize: 20, color: Colors.blue),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ProfileScreen()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 40, vertical: 15),
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30)),
+                      shadowColor: Colors.green,
+                      elevation: 10,
+                    ),
+                    icon: const Icon(Icons.person, color: Colors.green),
+                    label: const Text(
+                      'Profile',
+                      style: TextStyle(fontSize: 20, color: Colors.green),
                     ),
                   ),
                 ],
@@ -228,7 +278,7 @@ class HomeScreen extends StatelessWidget {
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.black,
-        selectedItemColor: Colors.deepPurple,
+        selectedItemColor: Colors.deepOrange,
         unselectedItemColor: Colors.white70,
         items: const [
           BottomNavigationBarItem(
@@ -242,6 +292,10 @@ class HomeScreen extends StatelessWidget {
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Profile',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'More',
           ),
         ],
         onTap: (index) {
@@ -263,6 +317,13 @@ class HomeScreen extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
+              break;
+            case 3:
+              // Navigate to More
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const MorePage()),
               );
               break;
           }
@@ -521,51 +582,99 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 }
 
-class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+class PrivacyPolicyPage extends StatelessWidget {
+  PrivacyPolicyPage({super.key});
+  String url = 'https://www.google.com';
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Privacy Policy')),
+      body: WebViewWidget(
+          controller: WebViewController()
+            ..loadRequest(Uri.parse(url))
+            ..setJavaScriptMode(JavaScriptMode.unrestricted)),
+    );
+  }
+}
+
+class MorePage extends StatelessWidget {
+  const MorePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          ListTile(
-            leading: const Icon(Icons.info, color: Colors.blue),
-            title: const Text(
-              'About',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            subtitle: const Text('Learn more about this app'),
-            trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const AboutPage()),
-            ),
+      appBar: AppBar(title: const Text('More')),
+      body: ListView(padding: const EdgeInsets.all(16.0), children: [
+        ListTile(
+          leading: const Icon(Icons.info, color: Colors.blue),
+          title: const Text(
+            'About ',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.privacy_tip, color: Colors.green),
-            title: const Text(
-              'Privacy Policy',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            subtitle: const Text('Read our privacy policy'),
-            trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const WebViewPage(
-                  title: 'Privacy Policy',
-                  url: 'https://example.com/privacy-policy',
-                ),
-              ),
-            ),
+          subtitle: const Text('Learn more about this app'),
+          trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AboutPage()),
           ),
-          const Divider(),
-        ],
-      ),
+        ),
+        const Divider(),
+        ListTile(
+          leading: const Icon(Icons.privacy_tip, color: Colors.green),
+          title: const Text(
+            'Privacy Policy',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          subtitle: const Text('Read our privacy policy'),
+          trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PrivacyPolicyPage()),
+          ),
+        ),
+        const Divider(),
+        //Share
+        ListTile(
+          leading: const Icon(Icons.share, color: Colors.orange),
+          title: const Text(
+            'Share',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          subtitle: const Text('Share this app'),
+          trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
+          onTap: () {
+            Share.share('Check out this awesome expense tracking app!');
+          },
+        ),
+        const Divider(),
+        //Rate US
+        ListTile(
+          leading: const Icon(Icons.feedback, color: Colors.red),
+          title: const Text(
+            'Feedback',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          subtitle: const Text('Share this app '),
+          trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
+          onTap: () => launchUrlString('https://www.google.com'),
+        ),
+        const Divider(),
+        ListTile(
+          leading: const Icon(Icons.question_answer, color: Colors.green),
+          subtitle: const Text('Frequently asked questions'),
+          title: const Text(
+            'FAQs',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const FaqPage()),
+            );
+          },
+        )
+      ]),
     );
   }
 }
@@ -593,7 +702,7 @@ class AboutPage extends StatelessWidget {
               SizedBox(height: 16),
               Row(
                 children: [
-                  Icon(Icons.quiz, size: 40, color: Colors.deepPurple),
+                  Icon(Icons.quiz, size: 40, color: Colors.deepOrange),
                   SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -882,6 +991,11 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
           MaterialPageRoute(builder: (context) => const ProfileScreen()),
         );
         break;
+      case 3:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MorePage()),
+        );
     }
   }
 
@@ -896,7 +1010,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Colors.deepPurple.shade800, Colors.blue.shade600],
+              colors: [Colors.deepOrange.shade800, Colors.blue.shade600],
             ),
           ),
         ),
@@ -906,7 +1020,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Colors.deepPurple.shade800, Colors.blue.shade600],
+            colors: [Colors.deepOrange.shade800, Colors.blue.shade600],
           ),
         ),
         child: SafeArea(
@@ -918,7 +1032,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                 color: Colors.black.withOpacity(0.8),
                 child: ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: Colors.deepPurple,
+                    backgroundColor: Colors.deepOrange,
                     child: Text(
                       '${index + 1}',
                       style: const TextStyle(color: Colors.white),
@@ -940,7 +1054,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.black,
-        selectedItemColor: Colors.deepPurple,
+        selectedItemColor: Colors.deepOrange,
         unselectedItemColor: Colors.white70,
         currentIndex: _selectedIndex,
         items: const [
@@ -956,6 +1070,11 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
             icon: Icon(Icons.person),
             label: 'Profile',
           ),
+          //more
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'More',
+          ),
         ],
         onTap: _onItemTapped,
       ),
@@ -970,14 +1089,14 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('Me'),
         centerTitle: true,
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Colors.deepPurple.shade800, Colors.blue.shade600],
+              colors: [Colors.deepOrange.shade800, Colors.blue.shade600],
             ),
           ),
         ),
@@ -987,7 +1106,7 @@ class ProfileScreen extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Colors.deepPurple.shade800, Colors.blue.shade600],
+            colors: [Colors.deepOrange.shade800, Colors.blue.shade600],
           ),
         ),
         child: SafeArea(
@@ -996,18 +1115,9 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.white,
-                  child: Icon(
-                    Icons.person,
-                    size: 50,
-                    color: Colors.deepPurple,
-                  ),
-                ),
                 const SizedBox(height: 20),
                 const Text(
-                  'User Profile',
+                  'All My Stats',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 24,
@@ -1018,7 +1128,7 @@ class ProfileScreen extends StatelessWidget {
                 Card(
                   color: Colors.black.withOpacity(0.7),
                   child: const ListTile(
-                    leading: Icon(Icons.quiz, color: Colors.deepPurple),
+                    leading: Icon(Icons.quiz, color: Colors.deepOrange),
                     title: Text(
                       'Total Quizzes Taken',
                       style: TextStyle(color: Colors.white),
@@ -1033,7 +1143,7 @@ class ProfileScreen extends StatelessWidget {
                 Card(
                   color: Colors.black.withOpacity(0.7),
                   child: const ListTile(
-                    leading: Icon(Icons.score, color: Colors.deepPurple),
+                    leading: Icon(Icons.score, color: Colors.deepOrange),
                     title: Text(
                       'Highest Score',
                       style: TextStyle(color: Colors.white),
