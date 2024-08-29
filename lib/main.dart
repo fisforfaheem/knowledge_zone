@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -9,8 +10,11 @@ import 'package:url_launcher/url_launcher_string.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SharedPrefsManager.init();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -18,6 +22,74 @@ void main() {
     ),
   );
   runApp(const MainApp());
+}
+
+class SharedPrefsManager {
+  static late SharedPreferences _prefs;
+
+  static Future<void> init() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
+
+  static Future<void> saveQuizResult(
+      String quizType, int score, int totalQuestions) async {
+    final quizzesTaken = _prefs.getInt('quizzesTaken') ?? 0;
+    final highestScore = _prefs.getInt('highestScore') ?? 0;
+    final totalScore = _prefs.getInt('totalScore') ?? 0;
+
+    await _prefs.setInt('quizzesTaken', quizzesTaken + 1);
+    await _prefs.setInt(
+        'highestScore', score > highestScore ? score : highestScore);
+    await _prefs.setInt('totalScore', totalScore + score);
+
+    final recentQuizzes = _prefs.getStringList('recentQuizzes') ?? [];
+    recentQuizzes.insert(0,
+        '$quizType,$score/$totalQuestions,${DateTime.now().toIso8601String()}');
+    if (recentQuizzes.length > 5) recentQuizzes.removeLast();
+    await _prefs.setStringList('recentQuizzes', recentQuizzes);
+  }
+
+  static Map<String, dynamic> getUserStats() {
+    return {
+      'quizzesTaken': _prefs.getInt('quizzesTaken') ?? 0,
+      'highestScore': _prefs.getInt('highestScore') ?? 0,
+      'averageScore': (_prefs.getInt('totalScore') ?? 0) /
+          (_prefs.getInt('quizzesTaken') ?? 1),
+      'recentQuizzes': _prefs.getStringList('recentQuizzes') ?? [],
+    };
+  }
+
+  static List<Map<String, dynamic>> getLeaderboardData() {
+    final leaderboardJson = _prefs.getString('leaderboard') ?? '[]';
+    final leaderboardList = json.decode(leaderboardJson) as List;
+    return leaderboardList.cast<Map<String, dynamic>>()
+      ..sort((a, b) => b['totalScore'].compareTo(a['totalScore']));
+  }
+
+  static void updateLeaderboard(
+      String username, int totalScore, int quizzesTaken) {
+    final leaderboardData = getLeaderboardData();
+    final userIndex =
+        leaderboardData.indexWhere((user) => user['username'] == username);
+
+    if (userIndex != -1) {
+      leaderboardData[userIndex] = {
+        'username': username,
+        'totalScore': totalScore,
+        'quizzesTaken': quizzesTaken,
+        'averageScore': totalScore / quizzesTaken,
+      };
+    } else {
+      leaderboardData.add({
+        'username': username,
+        'totalScore': totalScore,
+        'quizzesTaken': quizzesTaken,
+        'averageScore': totalScore / quizzesTaken,
+      });
+    }
+
+    _prefs.setString('leaderboard', json.encode(leaderboardData));
+  }
 }
 
 class MainApp extends StatelessWidget {
@@ -173,8 +245,6 @@ class HomeScreen extends StatelessWidget {
                         context, 'General Knowledge', Icons.lightbulb),
                     _buildBentoButton(context, 'Science', Icons.science),
                     _buildBentoButton(context, 'History', Icons.history),
-                    _buildBentoButton(
-                        context, 'Leaderboard', Icons.leaderboard),
                   ],
                 ),
               ),
@@ -182,55 +252,46 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.black,
-        selectedItemColor: Colors.deepOrange,
-        unselectedItemColor: Colors.white70,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.leaderboard),
-            label: 'Leaderboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'More',
-          ),
-        ],
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              // Navigate to Home
-              break;
-            case 1:
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const LeaderboardScreen()),
-              );
-              break;
-            case 2:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              );
-              break;
-            case 3:
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const MorePage()),
-              );
-              break;
-          }
-        },
-      ),
+      bottomNavigationBar: const CustomBottomNavigationBar(currentIndex: 0),
+
+      // bottomNavigationBar: BottomNavigationBar(
+      //   backgroundColor: Colors.black,
+      //   selectedItemColor: Colors.deepOrange,
+      //   unselectedItemColor: Colors.white70,
+      //   items: const [
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.home),
+      //       label: 'Home',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.person),
+      //       label: 'Profile',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.settings),
+      //       label: 'More',
+      //     ),
+      //   ],
+      //   onTap: (index) {
+      //     switch (index) {
+      //       case 0:
+      //         // Navigate to Home
+      //         break;
+      //       case 1:
+      //         Navigator.push(
+      //           context,
+      //           MaterialPageRoute(builder: (context) => const ProfileScreen()),
+      //         );
+      //         break;
+      //       case 2:
+      //         Navigator.push(
+      //           context,
+      //           MaterialPageRoute(builder: (context) => const MorePage()),
+      //         );
+      //         break;
+      //     }
+      //   },
+      // ),
     );
   }
 
@@ -348,6 +409,8 @@ class _QuizScreenState extends State<QuizScreen>
         _animationController.reset();
         _animationController.forward();
       } else {
+        SharedPrefsManager.saveQuizResult(
+            widget.quizType, _score, _questions.length);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -648,6 +711,7 @@ class MorePage extends StatelessWidget {
           },
         )
       ]),
+      bottomNavigationBar: const CustomBottomNavigationBar(currentIndex: 2),
     );
   }
 }
@@ -793,84 +857,43 @@ class WebViewPage extends StatelessWidget {
   }
 }
 
+class UserData {
+  static Future<void> saveQuizResult(
+      String quizType, int score, int totalQuestions) async {
+    final prefs = await SharedPreferences.getInstance();
+    final quizzesTaken = prefs.getInt('quizzesTaken') ?? 0;
+    final highestScore = prefs.getInt('highestScore') ?? 0;
+    final totalScore = prefs.getInt('totalScore') ?? 0;
+
+    await prefs.setInt('quizzesTaken', quizzesTaken + 1);
+    await prefs.setInt(
+        'highestScore', score > highestScore ? score : highestScore);
+    await prefs.setInt('totalScore', totalScore + score);
+
+    // Save recent quiz
+    final recentQuizzes = prefs.getStringList('recentQuizzes') ?? [];
+    recentQuizzes.insert(0,
+        '$quizType,$score/$totalQuestions,${DateTime.now().toIso8601String()}');
+    if (recentQuizzes.length > 5) recentQuizzes.removeLast();
+    await prefs.setStringList('recentQuizzes', recentQuizzes);
+  }
+
+  static Future<Map<String, dynamic>> getUserStats() async {
+    final prefs = await SharedPreferences.getInstance();
+    return {
+      'quizzesTaken': prefs.getInt('quizzesTaken') ?? 0,
+      'highestScore': prefs.getInt('highestScore') ?? 0,
+      'averageScore': (prefs.getInt('totalScore') ?? 0) /
+          (prefs.getInt('quizzesTaken') ?? 1),
+      'recentQuizzes': prefs.getStringList('recentQuizzes') ?? [],
+    };
+  }
+}
+
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Me'),
-        centerTitle: true,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Colors.deepOrange.shade800, Colors.blue.shade600],
-            ),
-          ),
-        ),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Colors.deepOrange.shade800, Colors.blue.shade600],
-          ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Text(
-                  'Stats',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                _buildStatCard('Total Quizzes Taken', '25'),
-                const SizedBox(height: 10),
-                _buildStatCard('Highest Score', '95'),
-                const SizedBox(height: 10),
-                _buildStatCard('Average Score', '78'),
-                const SizedBox(height: 20),
-                const Divider(color: Colors.white54),
-                const SizedBox(height: 20),
-                const Text(
-                  'Recent Quizzes',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Expanded(
-                  child: ListView(
-                    children: [
-                      _buildQuizHistoryItem(
-                          'General Knowledge', '8/10', '2023-05-15'),
-                      _buildQuizHistoryItem('Science', '7/10', '2023-05-14'),
-                      _buildQuizHistoryItem('History', '9/10', '2023-05-13'),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatCard(String title, String value) {
+  Widget buildStatCard(String title, String value) {
     return Card(
       color: Colors.black.withOpacity(0.7),
       child: ListTile(
@@ -888,7 +911,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildQuizHistoryItem(String quizType, String score, String date) {
+  Widget buildQuizHistoryItem(String quizType, String score, String date) {
     return Card(
       color: Colors.black.withOpacity(0.7),
       child: ListTile(
@@ -909,6 +932,34 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    final stats = SharedPrefsManager.getUserStats();
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Me')),
+      body: Column(
+        children: [
+          buildStatCard('Total Quizzes Taken', '${stats['quizzesTaken']}'),
+          buildStatCard('Highest Score', '${stats['highestScore']}'),
+          buildStatCard(
+              'Average Score', '${stats['averageScore'].toStringAsFixed(2)}'),
+          Expanded(
+            child: ListView.builder(
+              itemCount: stats['recentQuizzes'].length,
+              itemBuilder: (context, index) {
+                final quizData = stats['recentQuizzes'][index].split(',');
+                return buildQuizHistoryItem(
+                    quizData[0], quizData[1], quizData[2]);
+              },
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: const CustomBottomNavigationBar(currentIndex: 1),
+    );
+  }
 }
 
 class LeaderboardScreen extends StatelessWidget {
@@ -916,6 +967,8 @@ class LeaderboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final leaderboardData = SharedPrefsManager.getLeaderboardData();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Leaderboard'),
@@ -941,8 +994,9 @@ class LeaderboardScreen extends StatelessWidget {
         child: SafeArea(
           child: ListView.builder(
             padding: const EdgeInsets.all(16.0),
-            itemCount: 10,
+            itemCount: leaderboardData.length,
             itemBuilder: (context, index) {
+              final userData = leaderboardData[index];
               return Card(
                 color: Colors.black.withOpacity(0.8),
                 child: ListTile(
@@ -955,12 +1009,12 @@ class LeaderboardScreen extends StatelessWidget {
                     ),
                   ),
                   title: Text(
-                    'User ${index + 1}',
+                    userData['username'],
                     style: const TextStyle(
                         color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
-                    'Total Score: ${1000 - index * 50}',
+                    'Total Score: ${userData['totalScore']}',
                     style: const TextStyle(color: Colors.white70),
                   ),
                   trailing: Column(
@@ -968,11 +1022,11 @@ class LeaderboardScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        'Quizzes: ${20 - index}',
+                        'Quizzes: ${userData['quizzesTaken']}',
                         style: const TextStyle(color: Colors.white70),
                       ),
                       Text(
-                        'Avg: ${95 - index * 2}%',
+                        'Avg: ${userData['averageScore'].toStringAsFixed(2)}%',
                         style: const TextStyle(color: Colors.white70),
                       ),
                     ],
@@ -983,6 +1037,60 @@ class LeaderboardScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class CustomBottomNavigationBar extends StatelessWidget {
+  final int currentIndex;
+
+  const CustomBottomNavigationBar({super.key, required this.currentIndex});
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomNavigationBar(
+      backgroundColor: Colors.black,
+      selectedItemColor: Colors.deepOrange,
+      unselectedItemColor: Colors.white70,
+      currentIndex: currentIndex,
+      items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          label: 'Profile',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.settings),
+          label: 'More',
+        ),
+      ],
+      onTap: (index) {
+        switch (index) {
+          case 0:
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
+              (route) => false,
+            );
+            break;
+
+          case 1:
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ProfileScreen()),
+            );
+            break;
+          case 2:
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const MorePage()),
+            );
+            break;
+        }
+      },
     );
   }
 }
