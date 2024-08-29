@@ -613,7 +613,9 @@ class MorePage extends StatelessWidget {
           subtitle: const Text('Share this app'),
           trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
           onTap: () {
-            Share.share('Check out this awesome expense tracking app!');
+            //use this and also add playstore link
+            Share.share(
+                'Download Expense Distribution app from Playstore: https://play.google.com/store/apps/details?id=com.example.general_knowledge_app');
           },
         ),
         const Divider(),
@@ -624,9 +626,10 @@ class MorePage extends StatelessWidget {
             'Feedback',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          subtitle: const Text('Share this app '),
+          subtitle: const Text('Rate and review this app'),
           trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
-          onTap: () => launchUrlString('https://www.google.com'),
+          onTap: () => launchUrlString(
+              'https://play.google.com/store/apps/details?id=com.example.general_knowledge_app'),
         ),
         const Divider(),
         ListTile(
