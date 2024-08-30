@@ -245,6 +245,10 @@ class HomeScreen extends StatelessWidget {
                         context, 'General Knowledge', Icons.lightbulb),
                     _buildBentoButton(context, 'Science', Icons.science),
                     _buildBentoButton(context, 'History', Icons.history),
+                    _buildBentoButton(context, 'Sports', Icons.sports),
+                    _buildBentoButton(context, 'Movies', Icons.movie_sharp),
+                    //Geography
+                    _buildBentoButton(context, 'Geography', Icons.location_on),
                   ],
                 ),
               ),
@@ -300,7 +304,9 @@ class HomeScreen extends StatelessWidget {
       'General Knowledge': Colors.amber,
       'Science': Colors.green,
       'History': Colors.purple,
-      'Leaderboard': Colors.blue,
+      'Sports': Colors.blue,
+      'Movies': Colors.red,
+      'Geography': Colors.orange,
     };
 
     return Container(
@@ -318,7 +324,10 @@ class HomeScreen extends StatelessWidget {
         onPressed: () {
           if (title == 'General Knowledge' ||
               title == 'Science' ||
-              title == 'History') {
+              title == 'History' ||
+              title == 'Sports' ||
+              title == 'Movies' ||
+              title == 'Geography') {
             _startQuiz(context, title);
           } else if (title == 'Leaderboard') {
             Navigator.push(
@@ -686,7 +695,7 @@ class MorePage extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.feedback, color: Colors.red),
           title: const Text(
-            'Feedback',
+            'Rate Us',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           subtitle: const Text('Rate and review this app'),
