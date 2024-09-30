@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:general_knowledge_app/faq_page.dart';
 import 'package:general_knowledge_app/questions.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -14,6 +16,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  await Hive.openBox('appBox');
   await SharedPrefsManager.init();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -98,24 +102,180 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        primaryColor: Colors.deepOrange,
-        scaffoldBackgroundColor: Colors.black,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.deepOrange,
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          brightness: Brightness.dark,
+          primaryColor: Colors.deepOrange,
+          scaffoldBackgroundColor: Colors.black,
+          appBarTheme: const AppBarTheme(
             backgroundColor: Colors.deepOrange,
-            foregroundColor: Colors.white,
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.deepOrange,
+              foregroundColor: Colors.white,
+            ),
           ),
         ),
+        home: FutureBuilder<bool>(
+          future: checkFirstSeen(),
+          builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+            if (snapshot.hasData) {
+              if (snapshot.data!) {
+                return const OnboardingScreen();
+              } else {
+                return const SplashScreen();
+              }
+            } else {
+              return const CircularProgressIndicator();
+            }
+          },
+        ));
+  }
+}
+
+Future<bool> checkFirstSeen() async {
+  final box = Hive.box('appBox');
+  bool isFirstLaunch = box.get('isFirstLaunch', defaultValue: true);
+  if (isFirstLaunch) {
+    await box.put('isFirstLaunch', false);
+  }
+  return isFirstLaunch;
+}
+
+class OnboardingScreen extends StatefulWidget {
+  const OnboardingScreen({super.key});
+
+  @override
+  _OnboardingScreenState createState() => _OnboardingScreenState();
+}
+
+class _OnboardingScreenState extends State<OnboardingScreen> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+
+  List<OnboardingPage> pages = [
+    OnboardingPage(
+      title: "Test Your Knowledge",
+      description: "Challenge yourself with our diverse quiz categories.",
+      icon: Icons.quiz,
+    ),
+    OnboardingPage(
+      title: "Learn New Facts",
+      description: "Expand your knowledge with every quiz you take.",
+      icon: Icons.lightbulb,
+    ),
+    OnboardingPage(
+      title: "Track Your Progress",
+      description: "See your improvement over time with detailed statistics.",
+      icon: Icons.trending_up,
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            itemCount: pages.length,
+            onPageChanged: (int page) {
+              setState(() {
+                _currentPage = page;
+              });
+            },
+            itemBuilder: (context, index) {
+              return buildPage(pages[index]);
+            },
+          ),
+          Positioned(
+            bottom: 20,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                pages.length,
+                (index) => buildDot(index),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 60,
+            right: 20,
+            child: _currentPage == pages.length - 1
+                ? ElevatedButton(
+                    onPressed: () => finishOnboarding(context),
+                    child: const Text("Get Started"),
+                  )
+                : TextButton(
+                    onPressed: () => _pageController.nextPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    ),
+                    child: const Text("Next"),
+                  ),
+          ),
+        ],
       ),
-      home: const SplashScreen(),
     );
   }
+
+  Widget buildPage(OnboardingPage page) {
+    return Padding(
+      padding: const EdgeInsets.all(40),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(page.icon, size: 100)
+              .animate()
+              .fade(duration: 500.ms)
+              .scale(delay: 200.ms),
+          const SizedBox(height: 40),
+          Text(
+            page.title,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ).animate().fadeIn(delay: 300.ms).moveY(begin: 20, end: 0),
+          const SizedBox(height: 20),
+          Text(
+            page.description,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 16),
+          ).animate().fadeIn(delay: 500.ms).moveY(begin: 20, end: 0),
+        ],
+      ),
+    );
+  }
+
+  Widget buildDot(int index) {
+    return Container(
+      height: 10,
+      width: 10,
+      margin: const EdgeInsets.only(right: 5),
+      decoration: BoxDecoration(
+        color: _currentPage == index ? Colors.deepOrange : Colors.grey,
+        borderRadius: BorderRadius.circular(5),
+      ),
+    );
+  }
+
+  void finishOnboarding(BuildContext context) {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => const SplashScreen()));
+  }
+}
+
+class OnboardingPage {
+  final String title;
+  final String description;
+  final IconData icon;
+
+  OnboardingPage({
+    required this.title,
+    required this.description,
+    required this.icon,
+  });
 }
 
 class SplashScreen extends StatefulWidget {
@@ -329,11 +489,6 @@ class HomeScreen extends StatelessWidget {
               title == 'Movies' ||
               title == 'Geography') {
             _startQuiz(context, title);
-          } else if (title == 'Leaderboard') {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const LeaderboardScreen()));
           }
         },
         style: ElevatedButton.styleFrom(
@@ -708,7 +863,7 @@ class MorePage extends StatelessWidget {
           leading: const Icon(Icons.question_answer, color: Colors.green),
           subtitle: const Text('Frequently asked questions'),
           title: const Text(
-            'FAQs',
+            'FAQ',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
@@ -905,16 +1060,17 @@ class ProfileScreen extends StatelessWidget {
   Widget buildStatCard(String title, String value) {
     return Card(
       color: Colors.black.withOpacity(0.7),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
         leading: const Icon(Icons.star, color: Colors.deepOrange),
         title: Text(
           title,
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white, fontSize: 16),
         ),
         trailing: Text(
           value,
-          style:
-              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
         ),
       ),
     );
@@ -923,20 +1079,21 @@ class ProfileScreen extends StatelessWidget {
   Widget buildQuizHistoryItem(String quizType, String score, String date) {
     return Card(
       color: Colors.black.withOpacity(0.7),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
         leading: const Icon(Icons.quiz, color: Colors.deepOrange),
         title: Text(
           quizType,
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white, fontSize: 16),
         ),
         subtitle: Text(
           'Date: $date',
-          style: const TextStyle(color: Colors.white70),
+          style: const TextStyle(color: Colors.white70, fontSize: 14),
         ),
         trailing: Text(
           score,
-          style:
-              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
         ),
       ),
     );
@@ -947,105 +1104,49 @@ class ProfileScreen extends StatelessWidget {
     final stats = SharedPrefsManager.getUserStats();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Me')),
-      body: Column(
-        children: [
-          buildStatCard('Total Quizzes Taken', '${stats['quizzesTaken']}'),
-          buildStatCard('Highest Score', '${stats['highestScore']}'),
-          buildStatCard(
-              'Average Score', '${stats['averageScore'].toStringAsFixed(2)}'),
-          Expanded(
-            child: ListView.builder(
-              itemCount: stats['recentQuizzes'].length,
-              itemBuilder: (context, index) {
-                final quizData = stats['recentQuizzes'][index].split(',');
-                return buildQuizHistoryItem(
-                    quizData[0], quizData[1], quizData[2]);
-              },
+      appBar: AppBar(
+        title: const Text('Profile'),
+        backgroundColor: Colors.deepOrange,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(),
+            const SizedBox(height: 20),
+            buildStatCard('Total Quizzes Taken', '${stats['quizzesTaken']}'),
+            buildStatCard('Highest Score', '${stats['highestScore']}'),
+            buildStatCard(
+                'Average Score', '${stats['averageScore'].toStringAsFixed(2)}'),
+            const SizedBox(height: 20),
+            const Text(
+              'Recent Quizzes',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-          ),
-        ],
+            const SizedBox(height: 10),
+            Expanded(
+              child: ListView.builder(
+                itemCount: stats['recentQuizzes'].length,
+                itemBuilder: (context, index) {
+                  final quizData = stats['recentQuizzes'][index].split(',');
+                  return buildQuizHistoryItem(
+                      quizData[0], quizData[1], quizData[2]);
+                },
+              ),
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: const CustomBottomNavigationBar(currentIndex: 1),
     );
   }
-}
 
-class LeaderboardScreen extends StatelessWidget {
-  const LeaderboardScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final leaderboardData = SharedPrefsManager.getLeaderboardData();
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Leaderboard'),
-        centerTitle: true,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Colors.deepOrange.shade800, Colors.blue.shade600],
-            ),
-          ),
-        ),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Colors.deepOrange.shade800, Colors.blue.shade600],
-          ),
-        ),
-        child: SafeArea(
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16.0),
-            itemCount: leaderboardData.length,
-            itemBuilder: (context, index) {
-              final userData = leaderboardData[index];
-              return Card(
-                color: Colors.black.withOpacity(0.8),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.deepOrange,
-                    child: Text(
-                      '${index + 1}',
-                      style: const TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  title: Text(
-                    userData['username'],
-                    style: const TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    'Total Score: ${userData['totalScore']}',
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                  trailing: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Quizzes: ${userData['quizzesTaken']}',
-                        style: const TextStyle(color: Colors.white70),
-                      ),
-                      Text(
-                        'Avg: ${userData['averageScore'].toStringAsFixed(2)}%',
-                        style: const TextStyle(color: Colors.white70),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
+  Widget _buildHeader() {
+    return const Row(
+      children: [
+        SizedBox(width: 20),
+      ],
     );
   }
 }
