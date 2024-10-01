@@ -1,19 +1,19 @@
-name: general_knowledge_app
+name: knowledge_zone  
 description: "A new Flutter project."
 publish_to: 'none'
 version: 0.1.0
 
 environment:
-  sdk: ^3.5.0-323.2.beta
+  sdk: ">=3.4.0 <4.0.0"
 
 dependencies:
+  build_runner: ^2.4.12
   confetti: ^0.7.0
   flutter:
     sdk: flutter
   flutter_animate: ^4.5.0
-  google_fonts: ^6.2.1
-  icons_launcher: ^2.1.7
-  provider: ^6.1.2
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
   share_plus: ^10.0.2
   shared_preferences: ^2.3.2
   url_launcher: ^6.3.0
@@ -21,8 +21,12 @@ dependencies:
 
 dev_dependencies:
   flutter_lints: ^4.0.0
+  icons_launcher: ^3.0.0
   flutter_test:
     sdk: flutter
 
 flutter:
   uses-material-design: true
+  
+  assets:
+    - assets/images/playstore.png

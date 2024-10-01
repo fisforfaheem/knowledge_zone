@@ -1,6 +1,6 @@
 {
-    "name": "general_knowledge_app",
-    "short_name": "general_knowledge_app",
+    "name": "knowledge_zone",
+    "short_name": "knowledge_zone",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

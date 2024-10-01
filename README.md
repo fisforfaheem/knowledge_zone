@@ -1,3 +1,3 @@
-# general_knowledge_app
+# knowledge_zone
 
 A new Flutter project.

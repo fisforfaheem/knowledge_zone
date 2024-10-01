@@ -3,8 +3,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:general_knowledge_app/faq_page.dart';
-import 'package:general_knowledge_app/questions.dart';
+import 'package:knowledge_zone/faq_page.dart';
+import 'package:knowledge_zone/questions.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:share_plus/share_plus.dart';
@@ -335,13 +335,14 @@ class _SplashScreenState extends State<SplashScreen>
             children: [
               ScaleTransition(
                 scale: _animation,
-                child: const Icon(Icons.quiz, size: 100, color: Colors.white),
+                child: Image.asset('assets/images/playstore.png',
+                    width: 100, height: 100),
               ),
               const SizedBox(height: 20),
               FadeTransition(
                 opacity: _animation,
                 child: const Text(
-                  'World Knowledge Quiz',
+                  'Knowledge Zone',
                   style: TextStyle(
                     fontSize: 24,
                     color: Colors.white,
@@ -384,7 +385,7 @@ class HomeScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 40),
               const Text(
-                'World Knowledge',
+                'Knowledge Zone',
                 style: TextStyle(
                   fontSize: 40,
                   color: Colors.white,
@@ -781,7 +782,7 @@ class _ResultScreenState extends State<ResultScreen> {
 
 class PrivacyPolicyPage extends StatelessWidget {
   PrivacyPolicyPage({super.key});
-  String url = 'https://www.google.com';
+  String url = 'https://sites.google.com/view/dev-tech-knowledge-zone/home';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -856,7 +857,7 @@ class MorePage extends StatelessWidget {
           subtitle: const Text('Rate and review this app'),
           trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
           onTap: () => launchUrlString(
-              'https://play.google.com/store/apps/details?id=com.example.general_knowledge_app'),
+              'https://play.google.com/store/apps/details?id=com.example.knowledge_zone'),
         ),
         const Divider(),
         ListTile(
@@ -894,7 +895,7 @@ class AboutPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'World Knowledge Quiz',
+                'Knowledge Zone',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
