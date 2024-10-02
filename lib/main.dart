@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:in_app_review/in_app_review.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -788,6 +789,7 @@ class PrivacyPolicyPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Privacy Policy')),
       body: WebViewWidget(
+          //
           controller: WebViewController()
             ..loadRequest(Uri.parse(url))
             ..setJavaScriptMode(JavaScriptMode.unrestricted)),
@@ -843,22 +845,31 @@ class MorePage extends StatelessWidget {
           onTap: () {
             //use this and also add playstore link
             Share.share(
-                'Download Expense Distribution app from Playstore: https://play.google.com/store/apps/details?id=com.example.general_knowledge_app');
+                'Download Knowledge Zone app from Playstore: https://play.google.com/store/apps/details?id=com.example.knowledge_zone');
           },
         ),
         const Divider(),
         //Rate US
         ListTile(
-          leading: const Icon(Icons.feedback, color: Colors.red),
+          leading: const Icon(Icons.star, color: Colors.yellow),
           title: const Text(
             'Rate Us',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           subtitle: const Text('Rate and review this app'),
           trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
-          onTap: () => launchUrlString(
-              'https://play.google.com/store/apps/details?id=com.example.knowledge_zone'),
+          onTap: () async {
+            final InAppReview inAppReview = InAppReview.instance;
+            if (await inAppReview.isAvailable()) {
+              inAppReview.requestReview();
+            } else {
+              inAppReview.openStoreListing(
+                appStoreId: 'YOUR_APP_STORE_ID',
+              );
+            }
+          },
         ),
+
         const Divider(),
         ListTile(
           leading: const Icon(Icons.question_answer, color: Colors.green),

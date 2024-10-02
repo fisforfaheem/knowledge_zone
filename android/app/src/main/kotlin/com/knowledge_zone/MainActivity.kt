@@ -1,4 +1,4 @@
-package com.example.general_knowledge_app
+package com.knowledge_zone
 
 import io.flutter.embedding.android.FlutterActivity
 
